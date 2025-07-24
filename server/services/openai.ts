@@ -79,7 +79,7 @@ Please provide 3-5 complete recipes that can be made with these ingredients. For
 8. Difficulty level (easy/medium/hard)
 9. Cuisine type
 
-Format your response as a JSON array with the following structure:
+Format your response as a JSON array with the following structure. DO NOT wrap the JSON in markdown code blocks or backticks:
 [
   {
     "title": "Recipe Name",
@@ -96,6 +96,8 @@ Format your response as a JSON array with the following structure:
   }
 ]
 
+IMPORTANT: Return ONLY the JSON array, no additional text, no markdown formatting, no code block backticks.
+
 Important guidelines:
 - Be realistic about quantities and measurements
 - Provide clear, actionable cooking steps
@@ -108,36 +110,37 @@ Important guidelines:
   }
 
   async generateRecipes(request: GenerateRecipeRequest, userId: string): Promise<Recipe[]> {
-  console.log("=== OpenAI Service Debug Info ===");
-  console.log("Environment OPENAI_API_KEY exists:", !!process.env.OPENAI_API_KEY);
-  console.log("OpenAI client initialized:", !!openai);
-  
-  if (process.env.OPENAI_API_KEY) {
-    console.log("API Key format check:", process.env.OPENAI_API_KEY.startsWith('sk-'));
-    console.log("API Key length:", process.env.OPENAI_API_KEY.length);
-  }
+    console.log("=== OpenAI Service Debug Info ===");
+    console.log("Environment OPENAI_API_KEY exists:", !!process.env.OPENAI_API_KEY);
+    console.log("OpenAI client initialized:", !!openai);
+    
+    if (process.env.OPENAI_API_KEY) {
+      console.log("API Key format check:", process.env.OPENAI_API_KEY.startsWith('sk-'));
+      console.log("API Key length:", process.env.OPENAI_API_KEY.length);
+    }
 
-  // Test API connection
-  if (openai) {
-    try {
-      const isValid = await this.validateApiKey();
-      console.log("API Key validation successful:", isValid);
-      if (!isValid) {
-        console.error("API key validation failed - using mock recipes");
+    // Test API connection
+    if (openai) {
+      try {
+        const isValid = await this.validateApiKey();
+        console.log("API Key validation successful:", isValid);
+        if (!isValid) {
+          console.error("API key validation failed - using mock recipes");
+          return this.generateMockRecipes(request, userId);
+        }
+      } catch (error) {
+        console.error("API validation error:", error);
         return this.generateMockRecipes(request, userId);
       }
-    } catch (error) {
-      console.error("API validation error:", error);
+    }
+
+    if (!openai || !process.env.OPENAI_API_KEY) {
+      console.warn("OpenAI not configured - using mock recipes");
       return this.generateMockRecipes(request, userId);
     }
-  }
-
-  if (!openai || !process.env.OPENAI_API_KEY) {
-    console.warn("OpenAI not configured - using mock recipes");
-    return this.generateMockRecipes(request, userId);
-  }
 
     try {
+      console.log("Making OpenAI API call...");
       const prompt = this.buildPrompt(request);
 
       const completion = await openai.chat.completions.create({
@@ -146,7 +149,7 @@ Important guidelines:
           {
             role: "system",
             content:
-              "You are a professional chef and recipe creator. Always respond with valid JSON arrays containing recipe objects. Be precise with measurements and realistic with cooking times.",
+              "You are a professional chef and recipe creator. Always respond with valid JSON arrays containing recipe objects. Be precise with measurements and realistic with cooking times. IMPORTANT: Return ONLY the JSON array, no markdown formatting, no code blocks, no backticks, no additional text.",
           },
           {
             role: "user",
@@ -162,35 +165,68 @@ Important guidelines:
         throw new Error("No response from OpenAI");
       }
 
-      // Parse the JSON response
-      let parsedRecipes = JSON.parse(response);
+      console.log("OpenAI response received, parsing...");
+      console.log("Raw response preview:", response.substring(0, 100));
 
-      // Ensure parsedRecipes is always an array
-      if (!Array.isArray(parsedRecipes)) {
-        parsedRecipes = [parsedRecipes];
+      try {
+        // Clean the response to handle markdown code blocks
+        let cleanedResponse = response.trim();
+        
+        // Remove markdown code block formatting if present
+        if (cleanedResponse.startsWith('```json')) {
+          cleanedResponse = cleanedResponse.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+        } else if (cleanedResponse.startsWith('```')) {
+          cleanedResponse = cleanedResponse.replace(/^```\s*/, '').replace(/\s*```$/, '');
+        }
+        
+        // Additional cleanup for any backticks at the start/end
+        cleanedResponse = cleanedResponse.replace(/^`+|`+$/g, '');
+        
+        console.log("Cleaned response preview:", cleanedResponse.substring(0, 100));
+        
+        // Parse the JSON response
+        let parsedRecipes = JSON.parse(cleanedResponse);
+
+        // Ensure parsedRecipes is always an array
+        if (!Array.isArray(parsedRecipes)) {
+          parsedRecipes = [parsedRecipes];
+        }
+
+        // Convert to our Recipe format
+        const recipes: Recipe[] = parsedRecipes.map((recipe) => ({
+          id: uuidv4(),
+          user_id: userId,
+          title: recipe.title,
+          description: recipe.description,
+          ingredients: recipe.ingredients,
+          instructions: recipe.instructions,
+          prep_time: recipe.prep_time,
+          cook_time: recipe.cook_time,
+          servings: recipe.servings,
+          difficulty: recipe.difficulty,
+          cuisine_type: recipe.cuisine_type,
+          liked: false,
+          created_at: new Date().toISOString(),
+        }));
+
+        console.log(`Successfully generated ${recipes.length} recipes from OpenAI`);
+        return recipes;
+
+      } catch (parseError) {
+        console.error("JSON parsing error:", parseError);
+        console.error("Raw OpenAI response:", response);
+        console.error("Response length:", response?.length);
+        console.error("First 200 chars:", response?.substring(0, 200));
+        
+        // Fall back to mock recipes on parsing error
+        console.log("Falling back to mock recipes due to parsing error");
+        return this.generateMockRecipes(request, userId);
       }
 
-      // Convert to our Recipe format
-      const recipes: Recipe[] = parsedRecipes.map((recipe) => ({
-        id: uuidv4(),
-        user_id: userId,
-        title: recipe.title,
-        description: recipe.description,
-        ingredients: recipe.ingredients,
-        instructions: recipe.instructions,
-        prep_time: recipe.prep_time,
-        cook_time: recipe.cook_time,
-        servings: recipe.servings,
-        difficulty: recipe.difficulty,
-        cuisine_type: recipe.cuisine_type,
-        liked: false,
-        created_at: new Date().toISOString(),
-      }));
-
-      return recipes;
     } catch (error) {
       console.error("OpenAI API Error:", error);
       // Fall back to mock recipes on error
+      console.log("Falling back to mock recipes due to API error");
       return this.generateMockRecipes(request, userId);
     }
   }
