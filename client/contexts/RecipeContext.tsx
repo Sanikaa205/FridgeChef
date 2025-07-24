@@ -20,7 +20,7 @@ export function RecipeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     // Load recipes from localStorage on mount
-    const savedRecipes = localStorage.getItem('FridgeCHef_recipes');
+    const savedRecipes = localStorage.getItem('FridgeChef_recipes');
     if (savedRecipes) {
       try {
         const parsedRecipes = JSON.parse(savedRecipes);
@@ -33,7 +33,7 @@ export function RecipeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     // Save recipes to localStorage whenever recipes change
-    localStorage.setItem('FridgeCHef_recipes', JSON.stringify(recipes));
+    localStorage.setItem('FridgeChef_recipes', JSON.stringify(recipes));
   }, [recipes]);
 
   const likeRecipe = async (recipeId: string, liked: boolean) => {

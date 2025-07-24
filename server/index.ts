@@ -31,7 +31,7 @@ export function createServer() {
   // API endpoints
   app.get("/api/ping", (req, res) => {
     res.json({ 
-      message: "FridgeCHef API is running!",
+      message: "FridgeChef API is running!",
       timestamp: new Date().toISOString(),
       environment: process.env.NODE_ENV || 'development'
     });

@@ -27,7 +27,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     // Clear any existing demo user data on app start
-    const savedUser = localStorage.getItem('FridgeCHef_user');
+    const savedUser = localStorage.getItem('FridgeChef_user');
     if (savedUser) {
       try {
         const userData = JSON.parse(savedUser);
@@ -41,19 +41,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
         } else {
           // Remove demo user
-          localStorage.removeItem('FridgeCHef_user');
+          localStorage.removeItem('FridgeChef_user');
         }
       } catch (error) {
         console.error('Error parsing saved user data:', error);
-        localStorage.removeItem('FridgeCHef_user');
+        localStorage.removeItem('FridgeChef_user');
       }
     }
     
     // Generate or get guest ID for anonymous users
-    let guestUserId = localStorage.getItem('FridgeCHef_guest_id');
+    let guestUserId = localStorage.getItem('FridgeChef_guest_id');
     if (!guestUserId) {
       guestUserId = `guest-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      localStorage.setItem('FridgeCHef_guest_id', guestUserId);
+      localStorage.setItem('FridgeChef_guest_id', guestUserId);
     }
     setGuestId(guestUserId);
     
@@ -73,7 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       };
       
       setUser(user);
-      localStorage.setItem('FridgeCHef_user', JSON.stringify(user));
+      localStorage.setItem('FridgeChef_user', JSON.stringify(user));
       return true;
     } catch (error) {
       console.error('Login error:', error);
@@ -85,7 +85,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('FridgeCHef_user');
+    localStorage.removeItem('FridgeChef_user');
     // Keep guest ID but clear user data
     // Reset theme to light
     document.documentElement.classList.remove('dark');
@@ -96,7 +96,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     
     const updatedUser = { ...user, ...updates };
     setUser(updatedUser);
-    localStorage.setItem('FridgeCHef_user', JSON.stringify(updatedUser));
+    localStorage.setItem('FridgeChef_user', JSON.stringify(updatedUser));
     
     // Apply theme changes immediately
     if (updates.theme) {

@@ -48,7 +48,7 @@ export function Layout({ children }: LayoutProps) {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-orange-500 mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">Loading FridgeCHef...</p>
+          <p className="mt-4 text-muted-foreground">Loading FridgeChef...</p>
         </div>
       </div>
     );
@@ -63,7 +63,7 @@ export function Layout({ children }: LayoutProps) {
             <div className="p-2 bg-primary rounded-lg">
               <ChefHat className="h-6 w-6 text-primary-foreground" />
             </div>
-            <span className="text-xl font-heading font-semibold">FridgeCHef</span>
+            <span className="text-xl font-heading font-semibold">FridgeChef</span>
           </Link>
 
           {/* Desktop Navigation */}

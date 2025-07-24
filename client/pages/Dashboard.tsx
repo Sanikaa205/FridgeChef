@@ -85,7 +85,7 @@ export function Dashboard() {
         {isGuest ? (
           <>
             <h1 className="text-4xl font-heading font-bold text-balance">
-              Welcome to FridgeCHef
+              Welcome to FridgeChef
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto text-balance">
               Transform your ingredients into delicious recipes with the power of AI

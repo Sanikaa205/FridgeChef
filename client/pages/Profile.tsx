@@ -35,7 +35,7 @@ interface UserProfile {
 export function Profile() {
   const [profile, setProfile] = useState<UserProfile>({
     name: 'Guest User',
-    email: 'guest@FridgeCHef.com',
+    email: 'guest@FridgeChef.com',
     bio: 'I love creating delicious recipes with AI assistance!',
     preferences: {
       dietary_restrictions: [],
@@ -515,7 +515,7 @@ export function Profile() {
                     Clear all your generated recipes from local storage. This action cannot be undone.
                   </p>
                   <Button variant="destructive" size="sm" onClick={() => {
-                    localStorage.removeItem('FridgeCHef_recipes');
+                    localStorage.removeItem('FridgeChef_recipes');
                     window.location.reload();
                   }}>
                     Clear All Recipes
