@@ -145,13 +145,22 @@ export const getDashboardData: RequestHandler = async (req, res) => {
 export const getRecipeHistory: RequestHandler = async (req, res) => {
   try {
     const userId = req.headers['user-id'] as string || `guest-${Date.now()}`;
-    const { 
-      filter = 'all', 
-      sort_by = 'created_at', 
+    const {
+      filter = 'all',
+      sort_by = 'created_at',
       sort_order = 'desc',
       page = 1,
-      limit = 10 
-    }: RecipeHistoryRequest = req.query;
+      limit = 10
+    } = req.query;
+
+    const recipeHistoryRequest: RecipeHistoryRequest = {
+      user_id: userId,
+      filter: filter as 'all' | 'liked' | 'disliked',
+      sort_by: sort_by as 'created_at' | 'title' | 'cook_time',
+      sort_order: sort_order as 'asc' | 'desc',
+      page: Number(page),
+      limit: Number(limit)
+    };
 
     // Return empty result if no database connection
     if (!process.env.DATABASE_URL) {
@@ -184,7 +193,7 @@ export const getRecipeHistory: RequestHandler = async (req, res) => {
 
       // Get recipes with sorting and pagination
       const validSortFields = ['created_at', 'title', 'cook_time'];
-      const sortField = validSortFields.includes(sort_by) ? sort_by : 'created_at';
+      const sortField = validSortFields.includes(sort_by as string) ? (sort_by as string) : 'created_at';
       const sortDirection = sort_order === 'asc' ? 'ASC' : 'DESC';
 
       let recipes;
