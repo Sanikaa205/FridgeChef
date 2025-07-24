@@ -107,15 +107,35 @@ Important guidelines:
     return prompt;
   }
 
-  async generateRecipes(
-    request: GenerateRecipeRequest,
-    userId: string,
-  ): Promise<Recipe[]> {
-    // If no OpenAI API key, return mock recipes for development
-    if (!openai || !process.env.OPENAI_API_KEY) {
-      console.warn("OpenAI API key not configured, returning mock recipes");
+  async generateRecipes(request: GenerateRecipeRequest, userId: string): Promise<Recipe[]> {
+  console.log("=== OpenAI Service Debug Info ===");
+  console.log("Environment OPENAI_API_KEY exists:", !!process.env.OPENAI_API_KEY);
+  console.log("OpenAI client initialized:", !!openai);
+  
+  if (process.env.OPENAI_API_KEY) {
+    console.log("API Key format check:", process.env.OPENAI_API_KEY.startsWith('sk-'));
+    console.log("API Key length:", process.env.OPENAI_API_KEY.length);
+  }
+
+  // Test API connection
+  if (openai) {
+    try {
+      const isValid = await this.validateApiKey();
+      console.log("API Key validation successful:", isValid);
+      if (!isValid) {
+        console.error("API key validation failed - using mock recipes");
+        return this.generateMockRecipes(request, userId);
+      }
+    } catch (error) {
+      console.error("API validation error:", error);
       return this.generateMockRecipes(request, userId);
     }
+  }
+
+  if (!openai || !process.env.OPENAI_API_KEY) {
+    console.warn("OpenAI not configured - using mock recipes");
+    return this.generateMockRecipes(request, userId);
+  }
 
     try {
       const prompt = this.buildPrompt(request);
