@@ -1,6 +1,6 @@
 # Deployment Guide: Netlify + Neon
 
-This guide covers deploying the FridgeCHef application to Netlify with Neon PostgreSQL database.
+This guide covers deploying the FridgeChef application to Netlify with Neon PostgreSQL database.
 
 ## Prerequisites
 
@@ -13,7 +13,7 @@ This guide covers deploying the FridgeCHef application to Netlify with Neon Post
 ### 1. Create Neon Database
 1. Log into [Neon Console](https://console.neon.tech)
 2. Click "Create Project"
-3. Choose a project name (e.g., "FridgeCHef-production")
+3. Choose a project name (e.g., "FridgeChef-production")
 4. Select your preferred region
 5. Click "Create Project"
 
@@ -37,7 +37,7 @@ The database tables will be automatically created when the app starts. The schem
 1. Go to [Netlify Dashboard](https://app.netlify.com)
 2. Click "Add new site" → "Import an existing project"
 3. Connect your Git provider (GitHub, GitLab, etc.)
-4. Select your FridgeCHef repository
+4. Select your FridgeChef repository
 
 ### 2. Build Settings
 Netlify will automatically detect the settings from `netlify.toml`:
@@ -142,4 +142,4 @@ For deployment issues:
 - Verify environment variables
 - Test API endpoints in development
 
-Your FridgeCHef app will be production-ready with this setup! 🚀
+Your FridgeChef app will be production-ready with this setup! 🚀
